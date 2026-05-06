@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="description" content="Propósitos Interligados – Registo de horas para profissionais">
+<meta name="theme-color" content="#1a0533">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Propósitos Interligados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════ */
+:root {
+  --bg-top:   #1a0533;
+  --bg-deep:  #0d0120;
+  --card:     rgba(255,255,255,0.06);
+  --card2:    rgba(255,255,255,0.10);
+  --border:   rgba(255,255,255,0.10);
+  --border2:  rgba(255,255,255,0.18);
+  --text:     #ffffff;
+  --text2:    rgba(255,255,255,0.65);
+  --text3:    rgba(255,255,255,0.35);
+  --purple:   #6c3fff;
+  --pink:     #e91e8c;
+  --orange:   #f9a825;
+  --red:      #ff5252;
+  --cyan:     #00bcd4;
+  --green:    #43a047;
+  --green2:   #66bb6a;
+  --r:        20px;
+  --rsm:      12px;
+  --font:     'Nunito', sans-serif;
+  --t:        0.18s ease;
+  --drum-h:   34px;
+}
+* { box-sizing:border-box; margin:0; padding:0;
+    -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+body {
+  font-family:var(--font); background:var(--bg-top); color:var(--text);
+  min-height:100vh; max-width:430px; margin:0 auto;
+  overflow-x:hidden; padding-bottom:90px; position:relative;
+}
+body::before {
+  content:''; position:fixed; top:-80px; left:50%; transform:translateX(-50%);
+  width:360px; height:360px;
+  background:radial-gradient(circle,rgba(138,43,226,.55) 0%,transparent 70%);
+  pointer-events:none; z-index:0;
+}
+body::after {
+  content:''; position:fixed; inset:0;
+  background:linear-gradient(180deg,var(--bg-top) 0%,var(--bg-deep) 100%);
+  z-index:-1;
+}
+
+/* ══════════════════════════════════════════════════
+   MODAL DE PERFIL
+══════════════════════════════════════════════════ */
+#pm-bg {
+  position:fixed; inset:0; z-index:600;
+  background:rgba(10,0,30,.88);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  display:flex; align-items:flex-end; justify-content:center;
+  transition:opacity .3s;
+}
+#pm-bg.hidden { opacity:0; pointer-events:none; }
+#pm-box {
+  background:linear-gradient(180deg,#2a0a55 0%,#1a0533 100%);
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:28px 28px 0 0;
+  padding:28px 24px 44px;
+  width:100%; max-width:430px;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+#pm-bg.hidden #pm-box { transform:translateY(100%); }
+.pm-handle { width:40px; height:4px; background:rgba(255,255,255,.2); border-radius:2px; margin:0 auto 22px; }
+.pm-title  { font-size:19px; font-weight:900; text-align:center; margin-bottom:3px; }
+.pm-sub    { font-size:12px; font-weight:600; color:var(--text3); text-align:center; margin-bottom:22px; }
+.pm-avatar-row { display:flex; justify-content:center; margin-bottom:20px; }
+.pm-avatar-wrap { position:relative; cursor:pointer; }
+.pm-avatar-circle {
+  width:84px; height:84px; border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),#a855f7);
+  display:flex; align-items:center; justify-content:center; font-size:34px;
+  overflow:hidden; border:2.5px solid rgba(168,85,247,.5);
+}
+.pm-avatar-circle img { width:100%; height:100%; object-fit:cover; border-radius:50%; display:none; }
+.pm-avatar-badge {
+  position:absolute; bottom:2px; right:2px;
+  width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  display:flex; align-items:center; justify-content:center; font-size:13px;
+  border:2.5px solid #1a0533;
+}
+.pm-field { margin-bottom:14px; }
+.pm-field label { display:block; font-size:11px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--text3); margin-bottom:7px; }
+.pm-input {
+  width:100%; background:var(--card); border:1px solid var(--border2);
+  border-radius:var(--rsm); color:var(--text); font-family:var(--font);
+  font-size:16px; font-weight:700; padding:13px 16px; outline:none;
+  -webkit-appearance:none; appearance:none;
+  transition:border-color var(--t),background var(--t);
+}
+.pm-input:focus { border-color:rgba(108,63,255,.8); background:rgba(108,63,255,.14); }
+.pm-input::placeholder { color:var(--text3); font-weight:600; }
+.pm-save {
+  width:100%; font-family:var(--font); font-size:15px; font-weight:800; color:#fff;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  border:none; border-radius:50px; padding:15px; cursor:pointer;
+  box-shadow:0 6px 24px rgba(108,63,255,.5); margin-top:6px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height:52px; transition:transform var(--t),opacity var(--t);
+}
+.pm-save:active { transform:scale(.97); opacity:.9; }
+
+/* ══════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════ */
+.header { padding:52px 24px 0; position:relative; z-index:1; }
+.header-top { display:flex; align-items:flex-start; justify-content:space-between; }
+.company-big { font-size:38px; font-weight:900; line-height:1.06; letter-spacing:-.02em; }
+.header-date { font-size:15px; color:var(--text2); font-weight:700; margin-top:6px; }
+.header-day  { font-size:13px; color:var(--text3); font-weight:600; margin-top:2px; margin-bottom:2px; }
+.hdr-btn {
+  width:48px; height:48px; border-radius:50%; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:21px;
+  flex-shrink:0; margin-top:4px; min-width:48px;
+  box-shadow:0 4px 20px rgba(233,30,140,.5);
+  background:linear-gradient(135deg,var(--pink),#f4511e);
+  transition:transform var(--t);
+}
+.hdr-btn:active { transform:scale(.9); }
+
+/* ══════════════════════════════════════════════════
+   ALARM BANNER
+══════════════════════════════════════════════════ */
+#alarm-banner {
+  position:fixed; top:0; left:50%;
+  transform:translateX(-50%) translateY(-130px);
+  width:100%; max-width:430px;
+  background:linear-gradient(135deg,var(--pink),#f4511e);
+  color:#fff; font-family:var(--font); z-index:1000;
+  padding:18px 20px 14px; border-radius:0 0 22px 22px;
+  box-shadow:0 8px 32px rgba(233,30,140,.6);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  text-align:center;
+}
+#alarm-banner.show { transform:translateX(-50%) translateY(0); }
+.ab-title { font-size:16px; font-weight:900; margin-bottom:3px; }
+.ab-sub   { font-size:12px; font-weight:600; opacity:.85; margin-bottom:12px; }
+.ab-btns  { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.ab-btn {
+  font-family:var(--font); font-size:12px; font-weight:800;
+  border:2px solid rgba(255,255,255,.5); background:rgba(255,255,255,.15);
+  color:#fff; border-radius:50px; padding:7px 16px; cursor:pointer; min-height:36px;
+}
+.ab-btn.ok { background:rgba(255,255,255,.9); color:#c62828; }
+
+/* ══════════════════════════════════════════════════
+   PANEL + TABS
+══════════════════════════════════════════════════ */
+.panel {
+  background:rgba(13,1,32,.75); border-radius:32px 32px 0 0;
+  margin-top:28px; padding:28px 20px 0; position:relative; z-index:1;
+  min-height:calc(100vh - 210px);
+}
+.tab-pills {
+  display:flex; gap:8px; margin-bottom:24px;
+  background:rgba(255,255,255,.06); border-radius:50px; padding:4px;
+}
+.tab-pill {
+  flex:1; font-family:var(--font); font-size:13px; font-weight:700;
+  border:none; border-radius:50px; padding:9px 6px;
+  cursor:pointer; color:var(--text2); background:transparent; white-space:nowrap;
+  transition:var(--t);
+}
+.tab-pill.active {
+  background:linear-gradient(135deg,var(--purple),#a855f7); color:#fff;
+  box-shadow:0 4px 16px rgba(108,63,255,.5);
+}
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+.section-label {
+  font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text3); margin-bottom:12px; margin-top:20px;
+}
+.section-label:first-child { margin-top:0; }
+
+/* ══════════════════════════════════════════════════
+   WORKER CARD
+══════════════════════════════════════════════════ */
+.worker-card {
+  display:flex; align-items:center; gap:14px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); padding:14px 16px; margin-bottom:14px; cursor:pointer;
+  transition:background var(--t);
+}
+.worker-card:hover { background:var(--card2); }
+.photo-ring {
+  width:64px; height:64px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,var(--purple),#a855f7);
+  display:flex; align-items:center; justify-content:center; font-size:26px;
+  overflow:hidden; border:2.5px solid rgba(168,85,247,.5);
+  position:relative;
+}
+.photo-ring img { width:100%; height:100%; object-fit:cover; border-radius:50%; display:none; }
+.photo-ring-badge {
+  position:absolute; bottom:1px; right:1px;
+  width:20px; height:20px; border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  display:flex; align-items:center; justify-content:center; font-size:9px;
+  border:1.5px solid #1a0533;
+}
+.worker-info { flex:1; min-width:0; }
+.worker-name-display { font-size:17px; font-weight:800; color:var(--text); line-height:1.2; }
+.worker-company { font-size:12px; font-weight:700; color:var(--text3); margin-top:3px; }
+.worker-edit-hint { font-size:11px; font-weight:600; color:rgba(168,85,247,.7); margin-top:3px; }
+
+/* ══════════════════════════════════════════════════
+   FIELDS
+══════════════════════════════════════════════════ */
+.field { margin-bottom:14px; }
+.field label {
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; font-weight:800; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--text3); margin-bottom:7px;
+}
+.dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.do { background:var(--orange); }
+.dp { background:#a855f7; }
+.dm { background:var(--pink); }
+.dr { background:var(--red); }
+.dg { background:var(--green); }
+.dc { background:var(--cyan); }
+
+input[type="text"],input[type="date"],textarea {
+  width:100%; background:var(--card); border:1px solid var(--border);
+  border-radius:var(--rsm); color:var(--text); font-family:var(--font);
+  font-size:16px; font-weight:600; padding:13px 16px; outline:none;
+  -webkit-appearance:none; appearance:none;
+  transition:border-color var(--t),background var(--t);
+}
+input[type="text"]:focus,input[type="date"]:focus,textarea:focus {
+  border-color:rgba(108,63,255,.75); background:rgba(108,63,255,.12);
+}
+input::placeholder,textarea::placeholder { color:var(--text3); font-weight:600; }
+input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity(.4); }
+textarea { resize:none; }
+
+/* ══════════════════════════════════════════════════
+   DRUM PICKER
+══════════════════════════════════════════════════ */
+.time-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.time-wrap { position:relative; }
+.twl {
+  font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--text3); display:flex; align-items:center; gap:6px; margin-bottom:6px;
+}
+.drum-picker {
+  display:flex; align-items:stretch;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--rsm); overflow:hidden;
+  height:102px; position:relative;
+}
+.drum-picker::after {
+  content:''; position:absolute; top:50%; left:0; right:0;
+  height:var(--drum-h); transform:translateY(-50%);
+  border-top:1.5px solid rgba(108,63,255,.55);
+  border-bottom:1.5px solid rgba(108,63,255,.55);
+  background:rgba(108,63,255,.14); pointer-events:none; z-index:2;
+}
+.drum-picker::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(to bottom,rgba(13,1,32,.75) 0%,transparent 30%,transparent 70%,rgba(13,1,32,.75) 100%);
+  pointer-events:none; z-index:3;
+}
+.drum-col {
+  flex:1; overflow-y:scroll; scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none;
+}
+.drum-col::-webkit-scrollbar { display:none; }
+.drum-sep {
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:900; color:var(--text2);
+  padding:0 2px; flex-shrink:0; z-index:4; position:relative;
+}
+.drum-item {
+  height:var(--drum-h); display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:900; color:var(--text);
+  scroll-snap-align:center; cursor:pointer; user-select:none; -webkit-user-select:none;
+  flex-shrink:0;
+}
+.drum-pad { height:34px; flex-shrink:0; }
+
+/* ══════════════════════════════════════════════════
+   SUMMARY
+══════════════════════════════════════════════════ */
+.summary-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:20px 0; }
+.sum-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--rsm); padding:12px 8px; text-align:center;
+}
+.sum-val { font-size:13px; font-weight:900; color:var(--text); line-height:1.35; white-space:pre; }
+.sum-val.ok { color:var(--green2); font-size:15px; }
+.sum-lbl { font-size:10px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
+
+/* ══════════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════════ */
+.btn-save {
+  width:100%; font-family:var(--font); font-size:15px; font-weight:800; color:#fff;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  border:none; border-radius:50px; padding:15px; cursor:pointer;
+  box-shadow:0 6px 24px rgba(108,63,255,.5);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height:52px; transition:transform var(--t),opacity var(--t); margin-bottom:10px;
+}
+.btn-save:active { transform:scale(.97); opacity:.9; }
+.btn-wa {
+  width:100%; font-family:var(--font); font-size:14px; font-weight:800; color:#fff;
+  background:linear-gradient(135deg,#25d366,#128c4f);
+  border:none; border-radius:50px; padding:14px; cursor:pointer;
+  box-shadow:0 4px 16px rgba(37,211,102,.4);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height:52px; transition:transform var(--t),opacity var(--t); margin-bottom:10px;
+}
+.btn-wa:active { opacity:.85; transform:scale(.97); }
+.btn-row { display:flex; gap:10px; }
+.btn-row .btn-save,.btn-row .btn-wa { flex:1; }
+
+/* ══════════════════════════════════════════════════
+   HISTORY
+══════════════════════════════════════════════════ */
+.week-strip {
+  display:flex; align-items:center; justify-content:space-between;
+  background:linear-gradient(135deg,rgba(108,63,255,.22),rgba(233,30,140,.12));
+  border:1px solid rgba(108,63,255,.28); border-radius:var(--rsm);
+  padding:12px 16px; margin-bottom:16px;
+}
+.week-lbl { font-size:13px; font-weight:700; color:var(--text2); }
+.week-val { font-size:18px; font-weight:900; color:#c084fc; }
+
+.filter-row { display:flex; gap:8px; margin-bottom:16px; }
+.filter-row input { flex:1; font-size:14px; padding:10px 14px; border-radius:50px; }
+
+.history-item {
+  display:flex; align-items:flex-start; gap:14px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); padding:14px 16px; margin-bottom:10px;
+  animation:fadeUp .22s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.hi-photo { width:46px; height:46px; border-radius:50%; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.hi-photo img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.hi-body { flex:1; min-width:0; }
+.hi-loc    { font-size:16px; font-weight:800; color:var(--text); }
+.hi-worker { font-size:12px; font-weight:700; color:var(--text3); margin-top:2px; }
+.hi-times  { font-size:13px; font-weight:600; color:var(--text2); margin-top:4px; }
+.hi-note   { font-size:12px; font-weight:600; color:var(--text2); margin-top:6px; padding-top:6px; border-top:1px solid var(--border); }
+.hi-right  { text-align:right; flex-shrink:0; }
+.hi-hours  { font-size:16px; font-weight:900; color:var(--green2); }
+.hi-date   { font-size:11px; font-weight:700; color:var(--text3); margin-top:3px; }
+.hi-actions { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+.hi-btn {
+  font-family:var(--font); font-size:11px; font-weight:700;
+  border:1px solid var(--border); background:rgba(255,255,255,.06); color:var(--text2);
+  border-radius:50px; padding:6px 14px; cursor:pointer; min-height:32px;
+  transition:var(--t);
+}
+.hi-btn.wa { color:var(--green2); border-color:rgba(67,160,71,.4); }
+.hi-btn.wa:hover { background:rgba(67,160,71,.15); }
+.hi-btn:not(.wa):hover { background:rgba(255,82,82,.12); color:var(--red); border-color:rgba(255,82,82,.3); }
+
+/* ══════════════════════════════════════════════════
+   EXPORT
+══════════════════════════════════════════════════ */
+.export-row {
+  display:flex; align-items:center; gap:14px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); padding:14px 16px; margin-bottom:10px;
+}
+.icon-circle { border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ic-green  { background:linear-gradient(135deg,var(--green),var(--green2)); box-shadow:0 4px 14px rgba(67,160,71,.4); }
+.ic-purple { background:linear-gradient(135deg,var(--purple),#a855f7); box-shadow:0 4px 14px rgba(108,63,255,.4); }
+.ic-cyan   { background:linear-gradient(135deg,var(--cyan),#00e5ff); box-shadow:0 4px 14px rgba(0,188,212,.4); }
+.ic-red    { background:linear-gradient(135deg,#b71c1c,#e53935); box-shadow:0 4px 14px rgba(229,57,53,.3); }
+.export-info { flex:1; }
+.export-name { font-size:15px; font-weight:800; }
+.export-desc { font-size:12px; font-weight:600; color:var(--text3); margin-top:2px; }
+.exp-btn {
+  font-family:var(--font); font-size:13px; font-weight:800; color:#fff;
+  border:none; border-radius:50px; padding:9px 18px; cursor:pointer;
+  white-space:nowrap; min-height:40px; transition:opacity var(--t),transform var(--t);
+}
+.exp-btn:active { opacity:.85; transform:scale(.97); }
+.exp-green { background:linear-gradient(135deg,var(--green),var(--green2)); }
+.exp-wa    { background:linear-gradient(135deg,#1b5e20,#43a047); }
+.exp-red   { background:linear-gradient(135deg,#b71c1c,#e53935); }
+
+/* Alarm card */
+.alarm-card {
+  background:var(--card); border:1px solid rgba(233,30,140,.3);
+  border-radius:var(--r); padding:16px; margin-bottom:16px;
+}
+.alarm-card h3 { font-size:14px; font-weight:800; margin-bottom:3px; display:flex; align-items:center; gap:8px; }
+.alarm-card p  { font-size:12px; color:var(--text3); font-weight:600; margin-bottom:12px; line-height:1.5; }
+.alarm-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.alarm-row-lbl { font-size:13px; font-weight:700; color:var(--text2); }
+.toggle {
+  width:46px; height:26px; background:rgba(255,255,255,.15);
+  border-radius:50px; position:relative; cursor:pointer; transition:background var(--t); flex-shrink:0;
+}
+.toggle.on { background:linear-gradient(135deg,var(--purple),#a855f7); }
+.toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:20px; height:20px; border-radius:50%; background:#fff; transition:transform var(--t);
+}
+.toggle.on::after { transform:translateX(20px); }
+#alarm-status-text { font-size:12px; color:var(--text3); font-weight:600; }
+
+/* ══════════════════════════════════════════════════
+   BADGES / TOAST / NAV
+══════════════════════════════════════════════════ */
+.badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,var(--pink),#f4511e);
+  color:#fff; font-size:9px; font-weight:800;
+  border-radius:50%; width:16px; height:16px; margin-left:4px; vertical-align:middle;
+}
+.empty { text-align:center; padding:3rem 1rem; color:var(--text3); }
+.empty-icon { font-size:3rem; margin-bottom:1rem; opacity:.3; }
+.empty p { font-size:14px; font-weight:600; line-height:1.7; }
+
+#toast {
+  position:fixed; bottom:100px; left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:rgba(22,8,48,.97); border:1px solid rgba(108,63,255,.4);
+  color:#fff; border-radius:50px; padding:11px 22px;
+  font-family:var(--font); font-size:13px; font-weight:700; z-index:1001;
+  white-space:nowrap; box-shadow:0 4px 24px rgba(108,63,255,.4);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  opacity:0; max-width:90vw; text-align:center;
+}
+#toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  background:rgba(13,1,32,.97); border-top:1px solid var(--border);
+  display:flex; padding:10px 16px 20px; gap:4px; z-index:10;
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+}
+.nav-btn {
+  flex:1; font-family:var(--font); font-size:11px; font-weight:700;
+  color:var(--text3); background:transparent; border:none; border-radius:var(--rsm);
+  cursor:pointer; padding:8px 4px 6px;
+  display:flex; flex-direction:column; align-items:center; gap:4px; min-height:56px;
+  transition:color var(--t);
+}
+.nav-btn .ni { font-size:20px; line-height:1; }
+.nav-btn.active { color:#c084fc; }
+
+@media(max-width:360px){ .company-big{font-size:28px} .time-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<!-- ══ MODAL PERFIL ══ -->
+<div id="pm-bg" class="hidden" onclick="if(event.target===this)closePM()">
+  <div id="pm-box">
+    <div class="pm-handle"></div>
+    <div class="pm-title">O teu perfil</div>
+    <div class="pm-sub">Preenche uma vez — fica guardado neste dispositivo</div>
+    <div class="pm-avatar-row">
+      <div class="pm-avatar-wrap" onclick="document.getElementById('pm-photo-input').click()">
+        <div class="pm-avatar-circle" id="pm-av-circle">
+          <span id="pm-av-ph">📷</span>
+          <img id="pm-av-img" src="" alt="">
+        </div>
+        <div class="pm-avatar-badge">✏️</div>
+        <input type="file" id="pm-photo-input" accept="image/*" style="display:none" onchange="pmHandlePhoto(this)">
+      </div>
+    </div>
+    <div class="pm-field">
+      <label>👷 O teu nome</label>
+      <input class="pm-input" type="text" id="pm-name" placeholder="Ex: João Silva" autocomplete="off" autocapitalize="words">
+    </div>
+    <div class="pm-field">
+      <label>📍 Obra / Local habitual</label>
+      <input class="pm-input" type="text" id="pm-obra" placeholder="Ex: Rua das Flores 12 — Pintura" autocomplete="off">
+    </div>
+    <button class="pm-save" onclick="saveProfile()">✅ Guardar perfil</button>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="company-big">Propósitos<br>Interligados</div>
+      <div class="header-date" id="hdr-date">—</div>
+      <div class="header-day"  id="hdr-day">—</div>
+    </div>
+    <button class="hdr-btn" onclick="markNextEmpty()" title="Marcar próximo horário agora">🕐</button>
+  </div>
+</div>
+
+<!-- ══ ALARM BANNER ══ -->
+<div id="alarm-banner">
+  <div class="ab-title">⏰ Não se esqueça do horário!</div>
+  <div class="ab-sub" id="ab-sub">Ainda não registou a saída de hoje.</div>
+  <div class="ab-btns">
+    <button class="ab-btn" onclick="snoozeAlarm()">😴 +30 min</button>
+    <button class="ab-btn ok" onclick="dismissAlarm()">✔ Registar agora</button>
+    <button class="ab-btn" onclick="silenceAlarm()">🔕 Silenciar hoje</button>
+  </div>
+</div>
+
+<!-- ══ PANEL ══ -->
+<div class="panel">
+  <div class="tab-pills">
+    <button class="tab-pill active" onclick="switchTab('registo',this)">Registo</button>
+    <button class="tab-pill" onclick="switchTab('historico',this)">Histórico <span class="badge" id="count-badge">0</span></button>
+    <button class="tab-pill" onclick="switchTab('exportar',this)">Exportar</button>
+  </div>
+
+  <!-- ══ TAB REGISTO ══ -->
+  <div id="tab-registo" class="tab-content active">
+
+    <div class="section-label">Profissional</div>
+
+    <!-- Worker card — click opens profile modal -->
+    <div class="worker-card" onclick="openPM()">
+      <div class="photo-ring" id="main-photo-ring">
+        <span id="main-photo-ph">📷</span>
+        <img id="main-photo-img" src="" alt="">
+        <div class="photo-ring-badge">✏️</div>
+      </div>
+      <div class="worker-info">
+        <div class="worker-name-display" id="main-worker-name">Toca para definir o teu perfil</div>
+        <div class="worker-company">Propósitos Interligados</div>
+        <div class="worker-edit-hint" id="main-edit-hint">Toca para editar →</div>
+      </div>
+    </div>
+
+    <!-- Hidden name field (used for validation & save) -->
+    <input type="hidden" id="worker-name">
+
+    <div class="section-label" style="margin-top:4px">Obra</div>
+    <div class="field">
+      <label><span class="dot do"></span>Nome / Local da obra</label>
+      <input type="text" id="location" placeholder="Ex: Rua das Flores 12 — Pintura interior" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="field" style="margin-bottom:20px">
+      <label><span class="dot dg"></span>Data</label>
+      <input type="date" id="work-date">
+    </div>
+
+    <div class="section-label">Horários</div>
+
+    <div class="time-grid">
+      <div class="time-wrap">
+        <div class="twl"><span class="dot do"></span>Entrada</div>
+        <div class="drum-picker">
+          <div class="drum-col" id="drum-entry-h" data-id="entry-h" onscroll="onDrumScroll(this,'h')"></div>
+          <div class="drum-sep">:</div>
+          <div class="drum-col" id="drum-entry-m" data-id="entry-m" onscroll="onDrumScroll(this,'m')"></div>
+        </div>
+      </div>
+      <div class="time-wrap">
+        <div class="twl"><span class="dot dp"></span>Saída almoço</div>
+        <div class="drum-picker">
+          <div class="drum-col" id="drum-lout-h" data-id="lout-h" onscroll="onDrumScroll(this,'h')"></div>
+          <div class="drum-sep">:</div>
+          <div class="drum-col" id="drum-lout-m" data-id="lout-m" onscroll="onDrumScroll(this,'m')"></div>
+        </div>
+      </div>
+      <div class="time-wrap">
+        <div class="twl"><span class="dot dm"></span>Retorno almoço</div>
+        <div class="drum-picker">
+          <div class="drum-col" id="drum-lin-h" data-id="lin-h" onscroll="onDrumScroll(this,'h')"></div>
+          <div class="drum-sep">:</div>
+          <div class="drum-col" id="drum-lin-m" data-id="lin-m" onscroll="onDrumScroll(this,'m')"></div>
+        </div>
+      </div>
+      <div class="time-wrap">
+        <div class="twl"><span class="dot dr"></span>Saída final</div>
+        <div class="drum-picker">
+          <div class="drum-col" id="drum-exit-h" data-id="exit-h" onscroll="onDrumScroll(this,'h')"></div>
+          <div class="drum-sep">:</div>
+          <div class="drum-col" id="drum-exit-m" data-id="exit-m" onscroll="onDrumScroll(this,'m')"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- hidden state for drums -->
+    <input type="hidden" id="entry-h"><input type="hidden" id="entry-m">
+    <input type="hidden" id="lout-h"> <input type="hidden" id="lout-m">
+    <input type="hidden" id="lin-h">  <input type="hidden" id="lin-m">
+    <input type="hidden" id="exit-h"> <input type="hidden" id="exit-m">
+
+    <div class="summary-row">
+      <div class="sum-card">
+        <div class="sum-val" id="sum-total">--</div>
+        <div class="sum-lbl">Entrada → Saída</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-val" id="sum-lunch">--</div>
+        <div class="sum-lbl">Almoço</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-val ok" id="sum-worked">--</div>
+        <div class="sum-lbl">Trabalhadas</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span class="dot dc"></span>Observação / Reunião</label>
+      <textarea id="note" rows="2" placeholder="Ex: Reunião às 15h com o cliente. Atraso por trânsito."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-wa" onclick="shareWhatsApp()">📱 WhatsApp</button>
+      <button class="btn-save" onclick="saveEntry()">💾 Guardar</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB HISTÓRICO ══ -->
+  <div id="tab-historico" class="tab-content">
+    <div class="week-strip">
+      <span class="week-lbl">⏱ Esta semana</span>
+      <span class="week-val" id="week-total">0h 0m</span>
+    </div>
+    <div class="filter-row">
+      <input type="text" id="filter-worker" placeholder="🔍 Nome..." oninput="renderHistory()" autocomplete="off">
+      <input type="text" id="filter-loc"    placeholder="📍 Obra..."  oninput="renderHistory()" autocomplete="off">
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- ══ TAB EXPORTAR ══ -->
+  <div id="tab-exportar" class="tab-content">
+
+    <div class="alarm-card">
+      <h3>⏰ Despertador de registo</h3>
+      <p>Avisa às 18h (Seg–Sex) se a saída ainda não foi registada. Silencia automaticamente quando guardas.</p>
+      <div class="alarm-row">
+        <span class="alarm-row-lbl">Despertador activo</span>
+        <div class="toggle on" id="alarm-toggle" onclick="toggleAlarm()"></div>
+      </div>
+      <div class="alarm-row" style="margin-top:2px">
+        <span id="alarm-status-text">Próximo aviso: hoje às 18:00</span>
+      </div>
+    </div>
+
+    <div class="section-label">Filtrar período</div>
+    <div class="field"><label><span class="dot do"></span>De</label><input type="date" id="export-from"></div>
+    <div class="field"><label><span class="dot dm"></span>Até</label><input type="date" id="export-to"></div>
+    <div class="field">
+      <label><span class="dot dp"></span>Profissional (vazio = todos)</label>
+      <input type="text" id="export-worker" placeholder="Nome do profissional" autocomplete="off">
+    </div>
+
+    <div class="section-label" style="margin-top:24px">Exportar</div>
+
+    <div class="export-row">
+      <div class="icon-circle ic-green" style="width:46px;height:46px;font-size:19px">📄</div>
+      <div class="export-info">
+        <div class="export-name">CSV</div>
+        <div class="export-desc">Excel, Google Sheets ou Numbers</div>
+      </div>
+      <button class="exp-btn exp-green" onclick="exportCSV()">Exportar</button>
+    </div>
+    <div class="export-row">
+      <div class="icon-circle ic-purple" style="width:46px;height:46px;font-size:19px">📋</div>
+      <div class="export-info">
+        <div class="export-name">Relatório de texto</div>
+        <div class="export-desc">Copia resumo formatado</div>
+      </div>
+      <button class="exp-btn exp-green" onclick="exportText()">Copiar</button>
+    </div>
+    <div class="export-row">
+      <div class="icon-circle ic-cyan" style="width:46px;height:46px;font-size:19px">📱</div>
+      <div class="export-info">
+        <div class="export-name">Enviar por WhatsApp</div>
+        <div class="export-desc">Resumo do período para o gestor</div>
+      </div>
+      <button class="exp-btn exp-wa" onclick="exportWhatsApp()">Enviar</button>
+    </div>
+
+    <div class="section-label" style="margin-top:28px">Dados</div>
+    <div class="export-row">
+      <div class="icon-circle ic-red" style="width:46px;height:46px;font-size:19px">🗑️</div>
+      <div class="export-info">
+        <div class="export-name">Limpar histórico</div>
+        <div class="export-desc">Apaga todos os registos locais</div>
+      </div>
+      <button class="exp-btn exp-red" onclick="clearAll()">Apagar</button>
+    </div>
+  </div>
+
+</div><!-- /panel -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-registo" onclick="switchTab('registo',null,true)">
+    <span class="ni">✏️</span>Registo
+  </button>
+  <button class="nav-btn" id="nav-historico" onclick="switchTab('historico',null,true)">
+    <span class="ni">📋</span>Histórico
+  </button>
+  <button class="nav-btn" id="nav-exportar" onclick="switchTab('exportar',null,true)">
+    <span class="ni">📤</span>Exportar
+  </button>
+</div>
+
+<div id="toast">✅ Guardado!</div>
+
+<script>
+'use strict';
+/* ════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════ */
+const EMPRESA        = 'Propósitos Interligados';
+const WA_DEST        = '351939910536'; // número destino WhatsApp
+const KEY            = 'pi_entries_v3';
+const PROFILE_KEY    = 'pi_profile_v2';
+const ALARM_KEY      = 'pi_alarm_v2';
+const DRUM_H         = 34;
+const DAYS_PT        = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MONTHS_PT      = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+/* ════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════ */
+const todayStr = () => new Date().toISOString().split('T')[0];
+const pad  = n => String(n).padStart(2,'0');
+const toM  = (h,m) => h*60+m;
+const fmtD = mins => mins<=0 ? '0h 0m' : Math.floor(mins/60)+'h '+String(mins%60)+'m';
+const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ════════════════════════════════════════════════
+   STORAGE
+════════════════════════════════════════════════ */
+const getEntries  = () => { try { return JSON.parse(localStorage.getItem(KEY))||[]; } catch { return []; } };
+const saveEntries = a  => { localStorage.setItem(KEY, JSON.stringify(a)); updateBadge(); };
+
+/* ════════════════════════════════════════════════
+   DATE HEADER
+════════════════════════════════════════════════ */
+function initDate(){
+  const n = new Date();
+  document.getElementById('hdr-date').textContent = n.getDate()+' de '+MONTHS_PT[n.getMonth()]+' de '+n.getFullYear();
+  document.getElementById('hdr-day').textContent  = DAYS_PT[n.getDay()];
+  document.getElementById('work-date').value = todayStr();
+  document.getElementById('export-to').value = todayStr();
+  const mon = new Date(); mon.setDate(mon.getDate()-mon.getDay()+1);
+  document.getElementById('export-from').value = mon.toISOString().split('T')[0];
+}
+
+/* ════════════════════════════════════════════════
+   PROFILE MODAL
+════════════════════════════════════════════════ */
+let pmPhoto = null; // base64 string or null
+
+function getProfile(){ try{ return JSON.parse(localStorage.getItem(PROFILE_KEY))||null; }catch{ return null; } }
+function setProfile(p){ localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
+
+function pmHandlePhoto(input){
+  const f = input.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    pmPhoto = e.target.result;
+    const img = document.getElementById('pm-av-img');
+    img.src = pmPhoto; img.style.display='block';
+    document.getElementById('pm-av-ph').style.display='none';
+  };
+  r.readAsDataURL(f);
+}
+
+function saveProfile(){
+  const name = document.getElementById('pm-name').value.trim();
+  const obra = document.getElementById('pm-obra').value.trim();
+  if(!name){ showToast('⚠️ Insira o teu nome'); return; }
+  const p = { name, obra, photo: pmPhoto };
+  setProfile(p);
+  applyProfileToForm(p);
+  closePM();
+  showToast('✅ Perfil guardado!');
+}
+
+function applyProfileToForm(p){
+  if(!p) return;
+  // Update worker card display
+  document.getElementById('worker-name').value = p.name||'';
+  document.getElementById('main-worker-name').textContent = p.name||'Sem nome';
+  document.getElementById('main-edit-hint').textContent = 'Toca para editar →';
+  // Photo in card
+  if(p.photo){
+    const img = document.getElementById('main-photo-img');
+    img.src = p.photo; img.style.display='block';
+    document.getElementById('main-photo-ph').style.display='none';
+  }
+  // Pre-fill obra if empty
+  if(p.obra){
+    const loc = document.getElementById('location');
+    if(!loc.value) loc.value = p.obra;
+  }
+}
+
+function openPM(){
+  const p = getProfile();
+  if(p){
+    document.getElementById('pm-name').value = p.name||'';
+    document.getElementById('pm-obra').value = p.obra||'';
+    if(p.photo){
+      pmPhoto = p.photo;
+      const img = document.getElementById('pm-av-img');
+      img.src = p.photo; img.style.display='block';
+      document.getElementById('pm-av-ph').style.display='none';
+    }
+  }
+  document.getElementById('pm-bg').classList.remove('hidden');
+}
+
+function closePM(){
+  document.getElementById('pm-bg').classList.add('hidden');
+}
+
+function initProfile(){
+  const p = getProfile();
+  if(!p||!p.name){
+    setTimeout(openPM, 600); // first launch
+  } else {
+    pmPhoto = p.photo||null;
+    applyProfileToForm(p);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   TABS
+════════════════════════════════════════════════ */
+function switchTab(name, pillEl){
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(pillEl) pillEl.classList.add('active');
+  else document.querySelectorAll('.tab-pill').forEach(b=>{
+    if((b.getAttribute('onclick')||'').includes("'"+name+"'")) b.classList.add('active');
+  });
+  const nb = document.getElementById('nav-'+name);
+  if(nb) nb.classList.add('active');
+  if(name==='historico') renderHistory();
+  if(name==='exportar')  updateAlarmUI();
+}
+
+/* ════════════════════════════════════════════════
+   DRUM PICKER
+════════════════════════════════════════════════ */
+const drumState = {};
+const drumTimers = {};
+const DRUMS = [
+  {col:'drum-entry-h',id:'entry-h',type:'h'},{col:'drum-entry-m',id:'entry-m',type:'m'},
+  {col:'drum-lout-h', id:'lout-h', type:'h'},{col:'drum-lout-m', id:'lout-m', type:'m'},
+  {col:'drum-lin-h',  id:'lin-h',  type:'h'},{col:'drum-lin-m',  id:'lin-m',  type:'m'},
+  {col:'drum-exit-h', id:'exit-h', type:'h'},{col:'drum-exit-m', id:'exit-m', type:'m'},
+];
+
+function buildDrum(colEl, type){
+  const count = type==='h' ? 24 : 60; // MINUTOS: todos os valores 0-59 (não só múltiplos de 5)
+  let html = '<div class="drum-pad"></div>';
+  for(let i=0;i<count;i++){
+    html += `<div class="drum-item" data-val="${i}">${pad(i)}</div>`;
+  }
+  html += '<div class="drum-pad"></div>';
+  colEl.innerHTML = html;
+}
+
+function initDrums(){
+  DRUMS.forEach(({col,id,type})=>{
+    const el = document.getElementById(col);
+    if(!el) return;
+    buildDrum(el, type);
+    el.dataset.id = id;
+    drumState[id] = null;
+  });
+}
+
+function scrollDrumTo(colId, value, smooth){
+  const col = document.getElementById(colId); if(!col) return;
+  const items = col.querySelectorAll('.drum-item');
+  let target = null;
+  items.forEach(item=>{ if(parseInt(item.dataset.val)===value) target=item; });
+  if(!target) return;
+  const offset = target.offsetTop - col.clientHeight/2 + DRUM_H/2;
+  col.scrollTo({top:Math.max(0,offset), behavior:smooth?'smooth':'instant'});
+}
+
+function onDrumScroll(colEl, type){
+  const id = colEl.dataset.id;
+  clearTimeout(drumTimers[id]);
+  drumTimers[id] = setTimeout(()=>snapDrum(colEl,id), 80);
+}
+
+function snapDrum(colEl, id){
+  const centre = colEl.scrollTop + colEl.clientHeight/2;
+  const items  = colEl.querySelectorAll('.drum-item');
+  let closest=null, closestDist=Infinity;
+  items.forEach(item=>{
+    const d = Math.abs((item.offsetTop + DRUM_H/2) - centre);
+    if(d<closestDist){ closestDist=d; closest=item; }
+  });
+  if(!closest) return;
+  const val = parseInt(closest.dataset.val);
+  drumState[id] = val;
+  document.getElementById(id).value = val;
+  const offset = closest.offsetTop - colEl.clientHeight/2 + DRUM_H/2;
+  colEl.scrollTo({top:Math.max(0,offset), behavior:'smooth'});
+  calcHours();
+  if(id==='exit-h'||id==='exit-m') autoSilenceIfExitSet();
+}
+
+function setDrum(colId, stateId, value){
+  drumState[stateId] = value;
+  document.getElementById(stateId).value = value;
+  scrollDrumTo(colId, value, true);
+}
+
+const getV = id => { const v=drumState[id]; return (v===null||v===undefined)?null:v; };
+
+/* ════════════════════════════════════════════════
+   MARK NOW (botão 🕐)
+   Marca o próximo campo vazio. Minutos arredondados ao minuto exacto.
+════════════════════════════════════════════════ */
+const TIME_ORDER = [
+  {h:'entry-h',m:'entry-m',dh:'drum-entry-h',dm:'drum-entry-m',label:'Entrada'},
+  {h:'lout-h', m:'lout-m', dh:'drum-lout-h', dm:'drum-lout-m', label:'Saída almoço'},
+  {h:'lin-h',  m:'lin-m',  dh:'drum-lin-h',  dm:'drum-lin-m',  label:'Retorno almoço'},
+  {h:'exit-h', m:'exit-m', dh:'drum-exit-h', dm:'drum-exit-m', label:'Saída final'},
+];
+
+function markNextEmpty(){
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  for(const f of TIME_ORDER){
+    if(drumState[f.h]===null || drumState[f.h]===undefined){
+      setDrum(f.dh, f.h, h);
+      setDrum(f.dm, f.m, m);
+      calcHours();
+      showToast('🕐 '+f.label+': '+pad(h)+':'+pad(m));
+      if(f.h==='exit-h') autoSilenceIfExitSet();
+      return;
+    }
+  }
+  // todos preenchidos → atualiza saída final
+  const last = TIME_ORDER[3];
+  setDrum(last.dh, last.h, h); setDrum(last.dm, last.m, m);
+  calcHours();
+  showToast('🕐 Saída final: '+pad(h)+':'+pad(m));
+  autoSilenceIfExitSet();
+}
+
+/* ════════════════════════════════════════════════
+   CALCULATE
+════════════════════════════════════════════════ */
+function calcHours(){
+  const eh=getV('entry-h'),em=getV('entry-m');
+  const loh=getV('lout-h'),lom=getV('lout-m');
+  const lih=getV('lin-h'), lim=getV('lin-m');
+  const exh=getV('exit-h'),exm=getV('exit-m');
+  let total=null,lunch=null,worked=null;
+  if(eh!==null&&em!==null&&exh!==null&&exm!==null) total=toM(exh,exm)-toM(eh,em);
+  if(loh!==null&&lom!==null&&lih!==null&&lim!==null) lunch=toM(lih,lim)-toM(loh,lom);
+  if(total!==null) worked=total-(lunch||0);
+  const eStr=(eh!==null&&em!==null)?pad(eh)+':'+pad(em):'--';
+  const xStr=(exh!==null&&exm!==null)?pad(exh)+':'+pad(exm):'--';
+  document.getElementById('sum-total').textContent  = eStr+'\n→ '+xStr;
+  document.getElementById('sum-lunch').textContent  = lunch!==null  ? fmtD(Math.max(0,lunch))  : '--';
+  document.getElementById('sum-worked').textContent = worked!==null ? fmtD(Math.max(0,worked)) : '--';
+  return {total,lunch,worked};
+}
+
+/* ════════════════════════════════════════════════
+   SAVE ENTRY
+════════════════════════════════════════════════ */
+function saveEntry(){
+  const name = document.getElementById('worker-name').value.trim();
+  const loc  = document.getElementById('location').value.trim();
+  const date = document.getElementById('work-date').value;
+  const note = document.getElementById('note').value.trim();
+  if(!name){ showToast('⚠️ Toca no perfil para definir o teu nome'); openPM(); return; }
+  if(!loc)  { showToast('⚠️ Insira o local da obra'); return; }
+  if(!date) { showToast('⚠️ Selecione a data'); return; }
+  const eh=getV('entry-h'),em=getV('entry-m'),exh=getV('exit-h'),exm=getV('exit-m');
+  if(eh===null||em===null||exh===null||exm===null){ showToast('⚠️ Selecione Entrada e Saída final'); return; }
+  const {total,lunch,worked}=calcHours();
+  const loh=getV('lout-h'),lom=getV('lout-m'),lih=getV('lin-h'),lim=getV('lin-m');
+  // Get profile photo for this worker
+  const p = getProfile();
+  const photo = (p && p.name===name && p.photo) ? p.photo : null;
+  const entry = {
+    id:Date.now(), name, loc, date, note, photo,
+    entry:pad(eh)+':'+pad(em),
+    lout:(loh!==null&&lom!==null)?pad(loh)+':'+pad(lom):null,
+    lin: (lih!==null&&lim!==null)?pad(lih)+':'+pad(lim):null,
+    exit:pad(exh)+':'+pad(exm),
+    total, lunch, worked
+  };
+  const arr=getEntries(); arr.unshift(entry); saveEntries(arr);
+  autoSilenceIfExitSet();
+  showToast('✅ Registo guardado!');
+  resetForm();
+}
+
+function resetForm(){
+  document.getElementById('note').value='';
+  document.getElementById('work-date').value=todayStr();
+  ['sum-total','sum-lunch','sum-worked'].forEach(id=>document.getElementById(id).textContent='--');
+  // Re-apply obra from profile
+  const p=getProfile();
+  const loc=document.getElementById('location');
+  loc.value = (p&&p.obra)?p.obra:'';
+  // Reset drums
+  DRUMS.forEach(({col,id})=>{
+    drumState[id]=null;
+    document.getElementById(id).value='';
+    const el=document.getElementById(col);
+    if(el) el.scrollTo({top:0,behavior:'instant'});
+  });
+}
+
+/* ════════════════════════════════════════════════
+   HISTORY
+════════════════════════════════════════════════ */
+function fmtDate(s){ if(!s) return ''; const[y,m,d]=s.split('-'); return d+'/'+m+'/'+y; }
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  const fw=document.getElementById('filter-worker').value.trim().toLowerCase();
+  const fl=document.getElementById('filter-loc').value.trim().toLowerCase();
+  let entries=getEntries();
+  if(fw) entries=entries.filter(e=>e.name.toLowerCase().includes(fw));
+  if(fl) entries=entries.filter(e=>e.loc.toLowerCase().includes(fl));
+
+  // Week total (unfiltered)
+  const mon=new Date(); mon.setDate(mon.getDate()-mon.getDay()+1); mon.setHours(0,0,0,0);
+  const wm=getEntries().filter(e=>new Date(e.date+'T12:00:00')>=mon).reduce((s,e)=>s+(e.worked||0),0);
+  document.getElementById('week-total').textContent=fmtD(wm);
+
+  if(!entries.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><p>Nenhum registo encontrado.<br>Adicione um na aba Registo.</p></div>`;
+    return;
+  }
+  list.innerHTML=entries.map(e=>{
+    const times=[e.entry,e.lout,e.lin,e.exit].filter(Boolean).join(' → ');
+    const photoEl = e.photo
+      ? `<div class="hi-photo" style="background:linear-gradient(135deg,#6c3fff,#a855f7)"><img src="${e.photo}" alt=""></div>`
+      : `<div class="hi-photo" style="background:linear-gradient(135deg,#f9a825,#f4511e)">👷</div>`;
+    return `<div class="history-item">
+      ${photoEl}
+      <div class="hi-body">
+        <div class="hi-loc">${esc(e.loc)}</div>
+        <div class="hi-worker">${esc(e.name)}</div>
+        <div class="hi-times">${times}</div>
+        ${e.note?`<div class="hi-note">📝 ${esc(e.note)}</div>`:''}
+        <div class="hi-actions">
+          <button class="hi-btn wa" onclick="shareEntryWA(${e.id})">📱 WA</button>
+          <button class="hi-btn" onclick="deleteEntry(${e.id})">✕ Apagar</button>
+        </div>
+      </div>
+      <div class="hi-right">
+        <div class="hi-hours">${fmtD(e.worked||0)}</div>
+        <div class="hi-date">${fmtDate(e.date)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteEntry(id){
+  if(!confirm('Apagar este registo?')) return;
+  saveEntries(getEntries().filter(e=>e.id!==id));
+  renderHistory();
+  showToast('🗑️ Apagado');
+}
+
+function updateBadge(){ document.getElementById('count-badge').textContent=getEntries().length; }
+
+/* ════════════════════════════════════════════════
+   WHATSAPP
+════════════════════════════════════════════════ */
+function buildMsg(e){
+  const dateObj = new Date((e.date||todayStr())+'T12:00:00');
+  const dayName = DAYS_PT[dateObj.getDay()];
+  let m=`📋 *${EMPRESA} — Registo de Horas*\n\n`;
+  m+=`👷 *Profissional:* ${e.name}\n`;
+  m+=`📍 *Obra:* ${e.loc}\n`;
+  m+=`📅 *Data:* ${fmtDate(e.date)} (${dayName})\n\n`;
+  m+=`⏱️ *Horários*\n`;
+  m+=`  🕐 Entrada: ${e.entry}\n`;
+  if(e.lout) m+=`  🍽️ Saída almoço: ${e.lout}\n`;
+  if(e.lin)  m+=`  ↩️ Retorno: ${e.lin}\n`;
+  m+=`  🕔 Saída final: ${e.exit}\n\n`;
+  if(e.lunch!=null && e.lunch>0) m+=`⏸️ Intervalo almoço: ${fmtD(Math.max(0,e.lunch))}\n`;
+  m+=`✅ *Total trabalhado: ${fmtD(e.worked||0)}*`;
+  if(e.note) m+=`\n\n🗒️ *Observação:* ${e.note}`;
+  return m;
+}
+
+function shareWhatsApp(){
+  const name=document.getElementById('worker-name').value.trim();
+  const loc=document.getElementById('location').value.trim();
+  const date=document.getElementById('work-date').value;
+  const note=document.getElementById('note').value.trim();
+  const eh=getV('entry-h'),em=getV('entry-m'),exh=getV('exit-h'),exm=getV('exit-m');
+  if(!name||!loc||eh===null||exh===null){ showToast('⚠️ Preencha os campos obrigatórios'); return; }
+  const {total,lunch,worked}=calcHours();
+  const loh=getV('lout-h'),lom=getV('lout-m'),lih=getV('lin-h'),lim=getV('lin-m');
+  const e={name,loc,date,note,
+    entry:pad(eh)+':'+pad(em),
+    lout:(loh!==null&&lom!==null)?pad(loh)+':'+pad(lom):null,
+    lin: (lih!==null&&lim!==null)?pad(lih)+':'+pad(lim):null,
+    exit:pad(exh)+':'+pad(exm),total,lunch,worked};
+  window.open('https://wa.me/'+WA_DEST+'?text='+encodeURIComponent(buildMsg(e)),'_blank');
+}
+
+function shareEntryWA(id){
+  const e=getEntries().find(x=>x.id===id);
+  if(!e) return;
+  window.open('https://wa.me/'+WA_DEST+'?text='+encodeURIComponent(buildMsg(e)),'_blank');
+}
+
+/* ════════════════════════════════════════════════
+   EXPORT
+════════════════════════════════════════════════ */
+function getFiltered(){
+  const from=document.getElementById('export-from').value;
+  const to=document.getElementById('export-to').value;
+  const w=document.getElementById('export-worker').value.trim().toLowerCase();
+  return getEntries().filter(e=>{
+    if(from&&e.date<from) return false;
+    if(to&&e.date>to) return false;
+    if(w&&!e.name.toLowerCase().includes(w)) return false;
+    return true;
+  });
+}
+
+function exportCSV(){
+  const rows=getFiltered();
+  if(!rows.length){ showToast('⚠️ Nenhum registo no período'); return; }
+  const cols=['Data','Profissional','Obra','Entrada','Saída almoço','Retorno','Saída final','Total bruto','Almoço','Trabalhadas','Observação'];
+  const csv=[cols.join(';')].concat(rows.map(e=>[
+    fmtDate(e.date),e.name,e.loc,e.entry,e.lout||'',e.lin||'',e.exit,
+    fmtD(e.total||0),fmtD(e.lunch||0),fmtD(e.worked||0),(e.note||'').replace(/;/g,'.')
+  ].join(';'))).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='propositos_'+todayStr()+'.csv'; a.click();
+  showToast('📄 CSV exportado!');
+}
+
+function exportText(){
+  const rows=getFiltered();
+  if(!rows.length){ showToast('⚠️ Nenhum registo no período'); return; }
+  const total=rows.reduce((s,e)=>s+(e.worked||0),0);
+  let t=`${EMPRESA} — Relatório\n`;
+  t+=`Período: ${fmtDate(document.getElementById('export-from').value)} a ${fmtDate(document.getElementById('export-to').value)}\n`;
+  t+=`Total: ${fmtD(total)} | ${rows.length} registos\n\n`;
+  rows.forEach(e=>{ t+=`━━━━━━━━━━\n📅 ${fmtDate(e.date)} | 👷 ${e.name}\n📍 ${e.loc}\n⏱ ${e.entry} → ${e.exit} | ✅ ${fmtD(e.worked||0)}\n${e.note?'🗒️ '+e.note+'\n':''}\n`; });
+  const copy = t => {
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(t).then(()=>showToast('📋 Copiado!')).catch(()=>fallbackCopy(t));
+    else fallbackCopy(t);
+  };
+  copy(t);
+}
+
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); showToast('📋 Copiado!'); } catch{ showToast('⚠️ Não foi possível copiar'); }
+  document.body.removeChild(ta);
+}
+
+function exportWhatsApp(){
+  const rows=getFiltered();
+  if(!rows.length){ showToast('⚠️ Nenhum registo no período'); return; }
+  const total=rows.reduce((s,e)=>s+(e.worked||0),0);
+  let m=`📋 *${EMPRESA} — Relatório*\n`;
+  m+=`📅 ${fmtDate(document.getElementById('export-from').value)} → ${fmtDate(document.getElementById('export-to').value)}\n`;
+  m+=`✅ Total: *${fmtD(total)}* | ${rows.length} dias\n\n`;
+  rows.forEach(e=>{ m+=`• ${fmtDate(e.date)} | ${e.name} | ${e.loc} | ${fmtD(e.worked||0)}\n`; });
+  window.open('https://wa.me/'+WA_DEST+'?text='+encodeURIComponent(m),'_blank');
+}
+
+function clearAll(){
+  if(!confirm('Apagar TODOS os registos?\nEsta ação não pode ser desfeita.')) return;
+  localStorage.removeItem(KEY);
+  updateBadge(); renderHistory();
+  showToast('🗑️ Histórico limpo');
+}
+
+/* ════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ════════════════════════════════════════════════
+   ⏰ ALARM SYSTEM
+   - Ativo por defeito
+   - Dispara às 18:00 Seg-Sex
+   - Auto-silencia quando saída é guardada
+   - Snooze +30 min | Silenciar hoje | Ir ao registo
+════════════════════════════════════════════════ */
+const getAlarmState = () => { try{ return JSON.parse(localStorage.getItem(ALARM_KEY))||{}; }catch{ return {}; } };
+const saveAlarmState= s => localStorage.setItem(ALARM_KEY, JSON.stringify(s));
+
+function hasTodayExit(){
+  const t=todayStr();
+  // Check saved entries
+  if(getEntries().some(e=>e.date===t&&e.exit)) return true;
+  // Check current drum (exit-h has a value = exit was set this session)
+  if(getV('exit-h')!==null&&getV('exit-m')!==null) return true;
+  return false;
+}
+
+function isWeekday(){ const d=new Date().getDay(); return d>=1&&d<=5; }
+
+function nextAlarmMs(){
+  const now=new Date();
+  const t=new Date(now); t.setHours(18,0,0,0);
+  if(now>=t){ t.setDate(t.getDate()+1); while(t.getDay()===0||t.getDay()===6) t.setDate(t.getDate()+1); }
+  return t.getTime();
+}
+
+function toggleAlarm(){
+  const s=getAlarmState(); s.enabled=!s.enabled;
+  if(s.enabled) s.next=nextAlarmMs();
+  saveAlarmState(s); updateAlarmUI();
+  showToast(s.enabled?'⏰ Despertador activado':'🔕 Despertador desactivado');
+}
+
+function snoozeAlarm(){
+  hideAlarm();
+  const s=getAlarmState(); s.next=Date.now()+30*60*1000; saveAlarmState(s);
+  showToast('😴 Adiado 30 minutos'); updateAlarmUI();
+}
+
+function dismissAlarm(){
+  hideAlarm(); switchTab('registo',null);
+}
+
+function silenceAlarm(){
+  hideAlarm();
+  const s=getAlarmState(); s.silenced=todayStr(); s.next=nextAlarmMs(); saveAlarmState(s);
+  showToast('🔕 Silenciado para hoje.'); updateAlarmUI();
+}
+
+function hideAlarm(){ document.getElementById('alarm-banner').classList.remove('show'); }
+
+function showAlarmBanner(){
+  const now=new Date();
+  document.getElementById('ab-sub').textContent='São '+pad(now.getHours())+':'+pad(now.getMinutes())+' — ainda não registou a saída de hoje.';
+  document.getElementById('alarm-banner').classList.add('show');
+  tryNotif();
+  setTimeout(hideAlarm,30000);
+}
+
+function tryNotif(){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='granted'){
+    new Notification(EMPRESA,{body:'Não se esqueça de registar a sua saída!',
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⏰</text></svg>'});
+  } else if(Notification.permission!=='denied'){
+    Notification.requestPermission();
+  }
+}
+
+function checkAlarm(){
+  const s=getAlarmState(); if(!s.enabled) return;
+  const today=todayStr();
+  if(s.silenced&&s.silenced!==today){ s.silenced=null; saveAlarmState(s); }
+  if(s.silenced===today) return;
+  if(!isWeekday()) return;
+  if(hasTodayExit()){ autoSilenceIfExitSet(); return; }
+  const now=Date.now();
+  if(s.next&&now>=s.next){ showAlarmBanner(); s.next=now+60*60*1000; saveAlarmState(s); }
+}
+
+function autoSilenceIfExitSet(){
+  if(!hasTodayExit()) return;
+  const s=getAlarmState();
+  if(s.silenced===todayStr()) return;
+  s.silenced=todayStr(); s.next=nextAlarmMs(); saveAlarmState(s);
+  hideAlarm(); updateAlarmUI();
+}
+
+function updateAlarmUI(){
+  const s=getAlarmState();
+  const toggle=document.getElementById('alarm-toggle');
+  const statusEl=document.getElementById('alarm-status-text');
+  if(!toggle||!statusEl) return;
+  toggle.classList.toggle('on',!!s.enabled);
+  if(!s.enabled){ statusEl.textContent='Despertador desactivado'; return; }
+  const today=todayStr();
+  if(s.silenced===today){
+    statusEl.textContent=hasTodayExit()?'✅ Saída registada — bom trabalho!':'Silenciado hoje. Retoma amanhã.';
+    return;
+  }
+  if(s.next){
+    const d=new Date(s.next);
+    statusEl.textContent='Próximo aviso: '+DAYS_PT[d.getDay()].split('-')[0]+' às '+pad(d.getHours())+':'+pad(d.getMinutes());
+  } else {
+    statusEl.textContent='Próximo aviso: hoje às 18:00';
+  }
+}
+
+function initAlarm(){
+  const s=getAlarmState();
+  if(s.enabled===undefined){ s.enabled=true; s.next=nextAlarmMs(); saveAlarmState(s); }
+  updateAlarmUI(); checkAlarm();
+  setInterval(checkAlarm, 30000);
+}
+
+/* ════════════════════════════════════════════════
+   BOOT
+════════════════════════════════════════════════ */
+initDate();
+initDrums();
+updateBadge();
+initAlarm();
+initProfile();
+</script>
+</body>
+</html>
